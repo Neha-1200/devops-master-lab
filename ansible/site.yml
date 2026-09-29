@@ -1,0 +1,22 @@
+---
+- name: Prepare a Linux host for the DevOps Java Lab
+  hosts: app
+  become: true
+  tasks:
+    - name: Install Docker prerequisites
+      ansible.builtin.apt:
+        name: [ca-certificates, curl, docker.io]
+        state: present
+        update_cache: true
+    - name: Enable Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+    - name: Run the application container
+      community.docker.docker_container:
+        name: devops-java-lab
+        image: "{{ app_image | default('devops-java-lab:latest') }}"
+        state: started
+        restart_policy: unless-stopped
+        published_ports: ["8080:8080"]

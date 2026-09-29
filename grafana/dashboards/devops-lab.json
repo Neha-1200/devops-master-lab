@@ -1,0 +1,6 @@
+{
+  "annotations":{"list":[]},"editable":true,"panels":[
+    {"title":"HTTP Requests","type":"timeseries","gridPos":{"h":8,"w":12,"x":0,"y":0},"targets":[{"expr":"sum(rate(http_server_requests_seconds_count{application=\"devops-java-lab\"}[1m]))","legendFormat":"requests/sec"}]},
+    {"title":"JVM Heap Used","type":"timeseries","gridPos":{"h":8,"w":12,"x":12,"y":0},"targets":[{"expr":"jvm_memory_used_bytes{application=\"devops-java-lab\",area=\"heap\"}","legendFormat":"heap"}]}
+  ],"schemaVersion":41,"title":"DevOps Java Lab","version":1
+}

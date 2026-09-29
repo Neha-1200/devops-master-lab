@@ -1,0 +1,17 @@
+name: CD
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Docker image tag
+        required: true
+        default: latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure kubectl
+        run: echo "Configure AWS credentials + kubeconfig here for your cluster"
+      - name: Helm upgrade
+        run: helm upgrade --install devops-java-lab ./helm/devops-java-lab --set image.tag=${{ inputs.image_tag }}

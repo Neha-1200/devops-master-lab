@@ -1,8 +1,9 @@
 services:
+
   app:
-    build: .
-    image: devops-java-lab:local
-    ports: ["8081:8081"]
+    image: neha1200/devops-java-lab:latest
+    ports:
+      - "8081:8081"
     environment:
       APP_VERSION: 1.0.0
     healthcheck:
@@ -10,20 +11,25 @@ services:
       interval: 10s
       timeout: 3s
       retries: 10
-    networks: [devops]
+    networks:
+      - devops
 
   prometheus:
     image: prom/prometheus:v3.5.0
-    ports: ["9090:9090"]
+    ports:
+      - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
-      app: {condition: service_healthy}
-    networks: [devops]
+      app:
+        condition: service_healthy
+    networks:
+      - devops
 
   grafana:
     image: grafana/grafana:12.1.1
-    ports: ["3000:3000"]
+    ports:
+      - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
@@ -31,10 +37,13 @@ services:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
-    depends_on: [prometheus]
-    networks: [devops]
+    depends_on:
+      - prometheus
+    networks:
+      - devops
 
 networks:
   devops:
+
 volumes:
   grafana-data:

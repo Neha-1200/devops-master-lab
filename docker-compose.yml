@@ -1,7 +1,7 @@
 services:
 
   app:
-    image: neha1200/devops-java-lab:latest
+    image: neha1200/devops-java-lab:7
     ports:
       - "8081:8081"
     environment:

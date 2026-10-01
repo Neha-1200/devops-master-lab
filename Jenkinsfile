@@ -7,8 +7,10 @@ pipeline {
     }
 
     environment {
-        IMAGE = "devops-java-lab:${BUILD_NUMBER}"
+        IMAGE = "devops-java-lab:7:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "neha1200/devops-java-lab:7:${BUILD_NUMBER}"
     }
+
 
     stages {
 
@@ -18,11 +20,46 @@ pipeline {
             }
         }
 
+
+       stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    bat 'mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=devops-java-lab'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+    steps {
+        timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+        
+
         stage('Docker Build') {
             steps {
                 bat 'docker build -t %IMAGE% .'
             }
         }
+
+        stage('Docker push') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-credentials',
+            usernameVariable: 'DOCKERHUB_USERNAME',
+            passwordVariable: 'DOCKERHUB_TOKEN'
+        )]) {
+
+            bat 'docker tag %IMAGE% %DOCKER_IMAGE%'
+
+            bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_TOKEN%'
+
+            bat 'docker push %DOCKER_IMAGE%'
+        }
+    }
+}
 
         stage('Deploy') {
             steps {

@@ -1,27 +1,32 @@
 services:
   sonarqube:
     image: sonarqube:community
-    ports: ["9000:9000"]
+    ports:
+      - "9000:9000"
     environment:
       SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     volumes:
       - sonar-data:/opt/sonarqube/data
       - sonar-extensions:/opt/sonarqube/extensions
       - sonar-logs:/opt/sonarqube/logs
-    networks: [devops]
+    networks:
+      - devops
 
   jenkins:
     build: ./jenkins
-    ports: ["8082:8080", "50000:50000"]
+    ports:
+      - "8080:8080"
+      - "50000:50000"
     volumes:
-      - jenkins-data:/var/jenkins_home
+      - "C:/ProgramData/Jenkins/.jenkins:/var/jenkins_home"
       - /var/run/docker.sock:/var/run/docker.sock
-    networks: [devops]
+    networks:
+      - devops
 
 networks:
   devops:
+
 volumes:
   sonar-data:
   sonar-extensions:
   sonar-logs:
-  jenkins-data:

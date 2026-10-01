@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment {
-        IMAGE = "devops-java-lab:7:${BUILD_NUMBER}"
-        DOCKER_IMAGE = "neha1200/devops-java-lab:7:${BUILD_NUMBER}"
+    IMAGE = "devops-java-lab:${BUILD_NUMBER}"
+    DOCKER_IMAGE = "neha1200/devops-java-lab:${BUILD_NUMBER}"
     }
 
 

@@ -12,24 +12,15 @@ spec:
     spec:
       containers:
         - name: app
-          image: devops-java-lab:local
-          imagePullPolicy: IfNotPresent
-          ports: [{containerPort: 8080}]
+          image: neha1200/devops-java-lab:7
+          imagePullPolicy: Always
+          ports: [{containerPort: 8081}]
           readinessProbe:
-            httpGet: {path: /actuator/health/readiness, port: 8080}
+            httpGet: {path: /actuator/health/readiness, port: 8081}
             initialDelaySeconds: 10
           livenessProbe:
-            httpGet: {path: /actuator/health/liveness, port: 8080}
+            httpGet: {path: /actuator/health/liveness, port: 8081}
             initialDelaySeconds: 20
           resources:
             requests: {cpu: 100m, memory: 256Mi}
             limits: {cpu: 500m, memory: 512Mi}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: devops-java-lab
-spec:
-  selector: {app: devops-java-lab}
-  ports: [{port: 80, targetPort: 8080}]
-  type: ClusterIP

@@ -18,3 +18,13 @@ target/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+### Terraform ###
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+plan.txt
+
+# Keep Terraform provider lock file
+!.terraform.lock.hcl

@@ -1,17 +1,78 @@
 name: CD
+
 on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: Docker image tag
-        required: true
-        default: latest
+        description: "Image tag to deploy (full commit SHA from the build run). Leave empty to deploy the SHA this workflow runs on."
+        required: false
+        default: ""
+
+concurrency:
+  group: cd-eks
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write   # required for AWS OIDC
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER: devops-java-lab
+  RELEASE: devops-java-lab
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Inputs go through env vars, never straight into the script.
+      - name: Resolve image
+        env:
+          INPUT_TAG: ${{ inputs.image_tag }}
+        run: |
+          TAG="${INPUT_TAG:-$GITHUB_SHA}"
+          # GHCR requires a lowercase image name
+          echo "IMAGE_REPO=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/devops-java-lab" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: azure/setup-helm@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Configure kubectl
-        run: echo "Configure AWS credentials + kubeconfig here for your cluster"
+        run: aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
+
+      - name: Helm lint
+        run: helm lint helm/devops-java-lab
+
       - name: Helm upgrade
-        run: helm upgrade --install devops-java-lab ./helm/devops-java-lab --set image.tag=${{ inputs.image_tag }}
+        run: |
+          echo "Deploying $IMAGE_REPO:$IMAGE_TAG"
+          helm upgrade --install "$RELEASE" helm/devops-java-lab \
+            --set image.repository="$IMAGE_REPO" \
+            --set image.tag="$IMAGE_TAG" \
+            --rollback-on-failure --wait --timeout 5m
+
+      - name: Show result
+        run: |
+          kubectl get pods -l app=devops-java-lab
+          kubectl get svc "$RELEASE"
+
+      - name: Smoke test
+        run: |
+          HOST=$(kubectl get svc "$RELEASE" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "Checking http://$HOST/actuator/health"
+          for i in $(seq 1 18); do
+            if curl -fsS "http://$HOST/actuator/health"; then echo; exit 0; fi
+            echo "Attempt $i failed, retrying in 10s"
+            sleep 10
+          done
+          echo "Smoke test failed"
+          exit 1

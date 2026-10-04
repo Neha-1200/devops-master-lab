@@ -1,0 +1,3262 @@
+# DEVOPS JAVA LAB
+## Project Tracker, Implementation Guide & Recovery Manual
+
+> **Purpose of this document:**  
+> This is not only a progress tracker. It is the complete working memory of the project built so far.
+> If the project is stopped for a few months, this document should make it possible to understand
+> **what was built, why it was built, how the pieces connect, what commands/configuration were used,
+> what problems were faced, and where to continue.**
+>
+> **Documentation principle:** Learn the *why* before the *how*.
+
+---
+
+# 1. PROJECT OVERVIEW
+
+## 1.1 Project Goal
+
+Build a realistic, beginner-friendly but enterprise-style DevOps/SRE practice project around a small Java Spring Boot application.
+
+The project is intentionally built step by step so that each technology solves a real problem and connects to the next stage.
+
+The application starts as a simple Java service and gradually becomes a complete DevOps workflow involving:
+
+- Java 21
+- Spring Boot
+- Maven
+- Git
+- GitHub
+- Docker
+- Docker Compose
+- Prometheus
+- Grafana
+- Jenkins
+- SonarQube
+- Quality Gate
+- Docker Hub
+- Terraform
+- AWS VPC
+- Amazon EKS
+- Kubernetes
+- AWS Load Balancer
+- Kustomize
+- Helm
+- GitHub Actions
+
+Future planned stages include:
+
+- Ansible
+- Argo CD / GitOps
+- Advanced observability
+- Security scanning
+- Advanced deployment strategies
+- SRE practices
+
+---
+
+# 2. THE COMPLETE PROJECT FLOW
+
+The project evolved from a local Java application into a cloud-based Kubernetes deployment.
+
+```text
+Developer
+   |
+   v
+Java + Spring Boot Application
+   |
+   v
+Maven
+   |
+   v
+Git
+   |
+   v
+GitHub
+   |
+   +-----------------------------+
+   |                             |
+   v                             v
+Jenkins CI/CD              GitHub Actions
+   |                             |
+   v                             v
+Maven Test / Build          CI / CD Workflow
+   |
+   v
+SonarQube
+   |
+   v
+Quality Gate
+   |
+   v
+Docker Build
+   |
+   v
+Docker Image
+   |
+   v
+Docker Hub
+   |
+   v
+Terraform
+   |
+   v
+AWS VPC
+   |
+   v
+Amazon EKS
+   |
+   v
+Kubernetes
+   |
+   +--> Deployment
+   |       |
+   |       v
+   |     Pods
+   |
+   +--> Service
+           |
+           v
+     AWS Load Balancer
+           |
+           v
+   Spring Boot Application
+```
+
+---
+
+# 3. FINAL TECHNOLOGY STACK
+
+| Area | Technology | Purpose | Status |
+|---|---|---|---|
+| Application | Java 21 | Application runtime/language | DONE |
+| Framework | Spring Boot | Build REST application | DONE |
+| Build | Maven | Build, test and package | DONE |
+| Version Control | Git | Source-code versioning | DONE |
+| Repository | GitHub | Remote source repository | DONE |
+| Containerization | Docker | Package application | DONE |
+| Local orchestration | Docker Compose | Run multiple services | DONE |
+| Monitoring | Prometheus | Metrics collection | DONE |
+| Visualization | Grafana | Metrics dashboards | DONE |
+| CI/CD | Jenkins | Automated pipeline | DONE |
+| Code Quality | SonarQube | Static code analysis | DONE |
+| Quality Control | Quality Gate | Decide whether code passes quality checks | DONE |
+| Registry | Docker Hub | Store Docker images | DONE |
+| Infrastructure as Code | Terraform | Provision AWS infrastructure | DONE |
+| Cloud | AWS | Cloud platform | DONE |
+| Networking | AWS VPC | EKS network | DONE |
+| Kubernetes | Amazon EKS | Managed Kubernetes | DONE |
+| Container orchestration | Kubernetes | Run application containers | DONE |
+| External access | AWS Load Balancer | Expose application | DONE |
+| Kubernetes customization | Kustomize | Manage environment overlays | DONE |
+| Kubernetes packaging | Helm | Package/deploy application | DONE |
+| CI/CD | GitHub Actions | GitHub-native CI/CD | DONE |
+| Configuration/automation | Ansible | Planned | PLANNED |
+| GitOps | Argo CD | Planned | PLANNED |
+| Observability | Advanced stack | Planned | PLANNED |
+
+---
+
+# 4. CURRENT PROJECT STATE
+
+This section is the quick reference to the project as it stands now.
+
+## Application
+
+- Language: Java 21
+- Framework: Spring Boot
+- Build tool: Maven
+- Application port: **8081**
+
+## Application endpoints
+
+```text
+/api/hello
+/actuator/health
+/actuator/prometheus
+```
+
+Kubernetes probes use:
+
+```text
+/actuator/health/readiness
+/actuator/health/liveness
+```
+
+## Docker
+
+Current image:
+
+```text
+neha1200/devops-java-lab:14
+```
+
+Image registry:
+
+```text
+Docker Hub
+```
+
+## AWS
+
+```text
+Region: ap-south-1
+EKS Cluster: devops-java-lab
+Kubernetes Version: 1.33
+Node Type: t3.small
+Desired Nodes: 1
+Maximum Nodes: 2
+```
+
+Current node observed:
+
+```text
+ip-10-20-2-29.ap-south-1.compute.internal
+STATUS: Ready
+VERSION: v1.33.13-eks-3b4a6ca
+```
+
+## Kubernetes
+
+Application:
+
+```text
+Deployment: devops-java-lab
+Replicas: 2
+```
+
+Service:
+
+```text
+Name: devops-java-lab
+Type: LoadBalancer
+Port: 80
+Target Port: 8081
+```
+
+## CI/CD
+
+```text
+Jenkins       -> DONE
+GitHub Actions -> DONE
+```
+
+## Code quality
+
+```text
+SonarQube
+Quality Gate
+```
+
+## Infrastructure
+
+```text
+Terraform
+AWS VPC
+Amazon EKS
+EKS Managed Node Group
+```
+
+## Kubernetes packaging
+
+```text
+Kustomize
+Helm
+```
+
+## Monitoring
+
+```text
+Prometheus
+Grafana
+```
+
+---
+
+# 5. PROJECT DIRECTORY CONCEPT
+
+The project contains application code, infrastructure code and Kubernetes deployment definitions.
+
+Important areas created during the project include:
+
+```text
+devops-master-lab/
+|
++-- src/
+|   +-- main/
+|   +-- test/
+|
++-- pom.xml
++-- Dockerfile
++-- .dockerignore
++-- Jenkinsfile
++-- docker-compose.yml
++-- docker-compose-devops.yml
+|
++-- k8s/
+|   +-- base/
+|   |   +-- deployment.yaml
+|   |   +-- kustomization.yaml
+|   |
+|   +-- overlays/
+|       +-- dev/
+|           +-- kustomization.yaml
+|           +-- service.yaml
+|
++-- helm/
+|   +-- devops-java-lab/
+|       +-- Chart.yaml
+|       +-- values.yaml
+|       +-- templates/
+|           +-- deployment.yaml
+|           +-- service.yaml
+|           +-- serviceaccount.yaml
+|           +-- _helpers.tpl
+|
++-- terraform/
+    +-- environments/
+        +-- dev/
+            +-- main.tf
+            +-- variables.tf
+            +-- outputs.tf
+            +-- versions.tf
+            +-- terraform.tfvars.example
+```
+
+---
+
+# 6. STAGE 1 — JAVA + SPRING BOOT
+
+## What we created
+
+A small Java 21/Spring Boot application for DevOps practice.
+
+The application provides:
+
+```text
+/api/hello
+```
+
+and Spring Boot Actuator endpoints for health and metrics.
+
+## Why
+
+A DevOps project needs an actual application to build, test, package, containerize and deploy.
+
+Instead of learning DevOps tools independently, the same application is carried through the entire lifecycle.
+
+## Important application endpoints
+
+```text
+GET /api/hello
+GET /actuator/health
+GET /actuator/prometheus
+```
+
+Health probe endpoints:
+
+```text
+/actuator/health/readiness
+/actuator/health/liveness
+```
+
+---
+
+# 7. STAGE 2 — MAVEN
+
+## Why Maven
+
+Maven is used to:
+
+- Manage Java dependencies
+- Compile the application
+- Run tests
+- Package the application
+- Produce the application JAR
+
+Typical commands used:
+
+```powershell
+mvn clean test
+```
+
+```powershell
+mvn clean package
+```
+
+Run the packaged application:
+
+```powershell
+java -jar target/devops-java-lab-1.0.0.jar
+```
+
+## Why this matters to DevOps
+
+CI/CD systems need a repeatable command to build and test the application.
+
+Maven provides that repeatable build process.
+
+---
+
+# 8. STAGE 3 — GIT
+
+## Why Git
+
+Git tracks source-code changes.
+
+It allows us to:
+
+- Create history
+- Compare changes
+- Create branches
+- Roll back changes
+- Push code to GitHub
+
+Important concept:
+
+```text
+Working Directory
+       |
+       v
+Git Add
+       |
+       v
+Staging Area
+       |
+       v
+Git Commit
+       |
+       v
+Git Repository
+```
+
+---
+
+# 9. STAGE 4 — GITHUB
+
+## Why GitHub
+
+GitHub stores the project remotely and becomes the central source-code repository.
+
+It also becomes the trigger point for CI/CD.
+
+General flow:
+
+```text
+Developer
+   |
+   v
+git push
+   |
+   v
+GitHub
+   |
+   +--> Jenkins
+   |
+   +--> GitHub Actions
+```
+
+## Important Git project state
+
+A major commit used during the project:
+
+```text
+f162083
+Deploy application to EKS with Terraform and Kubernetes
+```
+
+The working tree was clean and changes were pushed to GitHub at that point.
+
+---
+
+# 10. STAGE 5 — DOCKER
+
+## Why Docker
+
+Before Docker, the application depends on the local Java runtime and environment.
+
+Docker packages the application into a consistent image.
+
+```text
+Application
+     |
+     v
+Dockerfile
+     |
+     v
+Docker Image
+     |
+     v
+Docker Container
+```
+
+This makes the application easier to:
+
+- Run consistently
+- Test
+- Ship
+- Deploy to Kubernetes
+
+## Dockerfile concept
+
+The project used a Java/Maven multi-stage Docker build.
+
+Example build stage:
+
+```dockerfile
+FROM maven:3.9-eclipse-temurin-21 AS build
+
+WORKDIR /app
+
+COPY pom.xml .
+
+RUN mvn dependency:go-offline
+
+COPY src ./src
+```
+
+The idea is:
+
+1. Use Maven + Java 21 to build the application.
+2. Download dependencies.
+3. Compile/package the application.
+4. Produce the application artifact.
+5. Run the final application in a runtime image.
+
+## Why multi-stage builds
+
+The build environment contains Maven and build dependencies.
+
+The final runtime image only needs what is required to run the application.
+
+This keeps the final image cleaner and smaller.
+
+---
+
+# 11. DOCKER CONCEPTS LEARNED
+
+## Image
+
+An image is a packaged template containing the application and its runtime requirements.
+
+Example:
+
+```text
+neha1200/devops-java-lab:14
+```
+
+## Container
+
+A container is a running instance of an image.
+
+```text
+Image = blueprint
+Container = running instance
+```
+
+## Docker daemon
+
+Docker CLI communicates with the Docker daemon.
+
+Conceptually:
+
+```text
+docker CLI
+    |
+    v
+Docker API
+    |
+    v
+Docker daemon
+    |
+    +--> Images
+    +--> Containers
+    +--> Networks
+    +--> Volumes
+```
+
+## CMD vs ENTRYPOINT
+
+These were studied because the container needs to know what process should start.
+
+Simple distinction:
+
+```text
+ENTRYPOINT = main executable
+CMD        = default arguments / default command
+```
+
+---
+
+# 12. STAGE 6 — DOCKER COMPOSE
+
+## Why Docker Compose
+
+The project uses multiple services locally.
+
+Examples:
+
+```text
+Application
+Prometheus
+Grafana
+SonarQube
+Jenkins
+```
+
+Instead of starting every container manually, Docker Compose describes the services in YAML.
+
+The project had:
+
+```text
+docker-compose.yml
+docker-compose-devops.yml
+```
+
+## Main local monitoring stack
+
+```text
+Application
+     |
+     +----> Prometheus
+                |
+                v
+             Grafana
+```
+
+The application was mapped to port 8081.
+
+Prometheus:
+
+```text
+9090
+```
+
+Grafana:
+
+```text
+3000
+```
+
+SonarQube:
+
+```text
+9000
+```
+
+Jenkins Docker setup used:
+
+```text
+8081 -> 8080
+50000 -> 50000
+```
+
+when running Jenkins in the separate Compose setup.
+
+---
+
+# 13. STAGE 7 — PROMETHEUS
+
+## Why Prometheus
+
+Prometheus collects application/system metrics.
+
+The Spring Boot application exposes:
+
+```text
+/actuator/prometheus
+```
+
+Prometheus can scrape these metrics.
+
+Concept:
+
+```text
+Spring Boot
+     |
+     | metrics
+     v
+Prometheus
+```
+
+---
+
+# 14. STAGE 8 — GRAFANA
+
+## Why Grafana
+
+Prometheus stores/query metrics, but Grafana provides visualization.
+
+Flow:
+
+```text
+Application
+    |
+    v
+Prometheus
+    |
+    v
+Grafana
+    |
+    v
+Dashboard
+```
+
+Grafana was included in the local Docker Compose environment and the project planned a dashboard using application metrics.
+
+---
+
+# 15. STAGE 9 — JENKINS
+
+## Why Jenkins
+
+Jenkins automates the CI/CD process.
+
+Instead of manually performing:
+
+```text
+Checkout
+Build
+Test
+Analyze
+Build Docker image
+Push image
+Deploy
+```
+
+Jenkins performs these steps automatically.
+
+## Jenkins pipeline flow
+
+```text
+GitHub
+   |
+   v
+Checkout
+   |
+   v
+Maven Test
+   |
+   v
+SonarQube Analysis
+   |
+   v
+Quality Gate
+   |
+   v
+Docker Build
+   |
+   v
+Docker Push
+   |
+   v
+Deploy
+```
+
+## Tools configured
+
+The Jenkins pipeline used:
+
+```text
+JDK 21
+Maven 3.9.16
+```
+
+The Docker image naming pattern was:
+
+```text
+devops-java-lab:${BUILD_NUMBER}
+```
+
+## Important Jenkins learning
+
+Jenkins was initially running directly on Windows on port:
+
+```text
+8080
+```
+
+A separate Docker Compose Jenkins setup was also investigated.
+
+A Windows Jenkins service existed at:
+
+```text
+C:\Program Files\Jenkins\jenkins.exe
+```
+
+The Windows service was stopped while troubleshooting the Docker-based Jenkins container.
+
+---
+
+# 16. JENKINS TROUBLESHOOTING
+
+## Problem
+
+The Jenkins Docker container repeatedly exited with:
+
+```text
+Exited (5)
+```
+
+## Investigation
+
+We checked:
+
+- Running containers
+- Stopped containers
+- Jenkins Windows service
+- Docker Compose configuration
+- Container mounts
+- Port configuration
+
+A Jenkins data path involved:
+
+```text
+C:/ProgramData/Jenkins/.jenkins
+```
+
+## Important lesson
+
+When a service already exists on the host, running another copy of the same service in Docker can cause conflicts involving:
+
+- Ports
+- Data directories
+- Services
+- Configuration
+- Permissions
+
+Always understand whether the application is running:
+
+```text
+on Windows host
+```
+
+or:
+
+```text
+inside Docker
+```
+
+before creating another instance.
+
+---
+
+# 17. STAGE 10 — SONARQUBE
+
+## Why SonarQube
+
+SonarQube performs static code analysis.
+
+The CI/CD pipeline uses it to check the quality of the code before continuing.
+
+Flow:
+
+```text
+Source Code
+     |
+     v
+Maven Build/Test
+     |
+     v
+SonarQube Analysis
+     |
+     v
+Quality Gate
+```
+
+---
+
+# 18. STAGE 11 — QUALITY GATE
+
+## Why Quality Gate
+
+A Quality Gate provides a pass/fail decision after SonarQube analysis.
+
+Conceptually:
+
+```text
+Code
+ |
+ v
+SonarQube
+ |
+ v
+Quality Gate
+ |
+ +---- PASS ----> Continue pipeline
+ |
+ +---- FAIL ----> Stop pipeline
+```
+
+This prevents poor-quality code from automatically progressing through the delivery pipeline.
+
+---
+
+# 19. STAGE 12 — DOCKER HUB
+
+## Why Docker Hub
+
+Kubernetes needs a container image that it can pull.
+
+The Docker image is pushed to Docker Hub.
+
+Current image:
+
+```text
+neha1200/devops-java-lab:14
+```
+
+Flow:
+
+```text
+Jenkins / GitHub Actions
+          |
+          v
+     docker build
+          |
+          v
+       Image
+          |
+          v
+     Docker Hub
+          |
+          v
+     Kubernetes
+```
+
+---
+
+# 20. STAGE 13 — TERRAFORM
+
+## Why Terraform
+
+Creating AWS infrastructure manually is difficult to reproduce.
+
+Terraform describes infrastructure as code.
+
+Instead of clicking through AWS Console repeatedly:
+
+```text
+Terraform Code
+     |
+     v
+AWS Resources
+```
+
+## Terraform manages
+
+The project used Terraform to provision:
+
+- AWS VPC
+- Public subnets
+- Private subnets
+- NAT Gateway
+- EKS cluster
+- EKS managed node group
+
+---
+
+# 21. TERRAFORM PROJECT STRUCTURE
+
+```text
+terraform/
+└── environments/
+    └── dev/
+        ├── main.tf
+        ├── outputs.tf
+        ├── terraform.tfvars.example
+        ├── variables.tf
+        └── versions.tf
+```
+
+---
+
+# 22. AWS VPC CONFIGURATION
+
+The VPC used:
+
+```text
+CIDR:
+10.20.0.0/16
+```
+
+Availability Zones:
+
+```text
+ap-south-1a
+ap-south-1b
+```
+
+Private subnets:
+
+```text
+10.20.1.0/24
+10.20.2.0/24
+```
+
+Public subnets:
+
+```text
+10.20.101.0/24
+10.20.102.0/24
+```
+
+NAT Gateway:
+
+```text
+enabled
+```
+
+Single NAT Gateway:
+
+```text
+enabled
+```
+
+DNS hostnames:
+
+```text
+enabled
+```
+
+Kubernetes subnet tags were configured so AWS could understand which subnets could be used for external/internal load balancers.
+
+---
+
+# 23. EKS CONFIGURATION
+
+Cluster:
+
+```text
+devops-java-lab
+```
+
+Region:
+
+```text
+ap-south-1
+```
+
+Kubernetes version:
+
+```text
+1.33
+```
+
+API endpoint access:
+
+```text
+Public: enabled
+Private: enabled
+```
+
+EKS managed node group:
+
+```text
+default
+```
+
+Instance type:
+
+```text
+t3.small
+```
+
+Scaling:
+
+```text
+min: 1
+desired: 1
+max: 2
+```
+
+---
+
+# 24. TERRAFORM IMPORTANT CONCEPTS LEARNED
+
+During the project, several Terraform/AWS problems were encountered and investigated.
+
+Examples included:
+
+```text
+Terraform S3 state access Forbidden
+InvalidClientTokenId
+AWS region mismatch
+IAM role EntityAlreadyExists
+ConditionalCheckFailedException
+```
+
+These helped reinforce the importance of:
+
+- AWS credentials
+- Correct AWS region
+- IAM permissions
+- Terraform state
+- State locking
+- Remote state
+- Resource naming
+- Terraform lifecycle
+
+---
+
+# 25. STAGE 14 — KUBERNETES
+
+## Why Kubernetes
+
+Docker runs containers.
+
+Kubernetes manages containers at scale.
+
+Kubernetes provides:
+
+- Deployment
+- Replica management
+- Self-healing
+- Service discovery
+- Rolling updates
+- Health checks
+- Scaling
+
+Project flow:
+
+```text
+Docker Image
+     |
+     v
+Kubernetes Deployment
+     |
+     v
+Pods
+     |
+     v
+Service
+```
+
+---
+
+# 26. KUBERNETES DEPLOYMENT
+
+Application:
+
+```text
+devops-java-lab
+```
+
+Replicas:
+
+```text
+2
+```
+
+Container port:
+
+```text
+8081
+```
+
+Image:
+
+```text
+neha1200/devops-java-lab:14
+```
+
+Image pull policy:
+
+```text
+Always
+```
+
+---
+
+# 27. KUBERNETES PODS
+
+The Deployment creates Pods.
+
+Current desired state:
+
+```text
+2 replicas
+```
+
+Observed Pods were:
+
+```text
+devops-java-lab-785b8559d9-5552h
+devops-java-lab-785b8559d9-9trkv
+```
+
+Both were:
+
+```text
+1/1 Running
+```
+
+---
+
+# 28. READINESS AND LIVENESS PROBES
+
+## Readiness
+
+Readiness answers:
+
+> "Can this Pod receive traffic?"
+
+Configured endpoint:
+
+```text
+/actuator/health/readiness
+```
+
+Port:
+
+```text
+8081
+```
+
+Initial delay:
+
+```text
+10 seconds
+```
+
+## Liveness
+
+Liveness answers:
+
+> "Is this application still alive?"
+
+Configured endpoint:
+
+```text
+/actuator/health/liveness
+```
+
+Port:
+
+```text
+8081
+```
+
+Initial delay:
+
+```text
+20 seconds
+```
+
+Concept:
+
+```text
+Pod starts
+   |
+   v
+Readiness check
+   |
+   +-- Not ready --> No traffic
+   |
+   +-- Ready ------> Traffic allowed
+
+
+Liveness check
+   |
+   +-- Healthy ----> Continue
+   |
+   +-- Failed -----> Kubernetes can restart container
+```
+
+---
+
+# 29. KUBERNETES SERVICE
+
+Service:
+
+```text
+devops-java-lab
+```
+
+Type:
+
+```text
+LoadBalancer
+```
+
+Port mapping:
+
+```text
+Service port: 80
+Target port: 8081
+```
+
+Flow:
+
+```text
+Client
+  |
+  v
+AWS Load Balancer
+  |
+  v
+Kubernetes Service :80
+  |
+  v
+Pod :8081
+  |
+  v
+Spring Boot
+```
+
+---
+
+# 30. STAGE 15 — AWS LOAD BALANCER
+
+Because the Kubernetes Service is:
+
+```yaml
+type: LoadBalancer
+```
+
+EKS provisions an AWS load balancer.
+
+An external DNS name was provisioned during the project:
+
+```text
+a78f31fd4c8914553bbabb56dde5672c-872961821.ap-south-1.elb.amazonaws.com
+```
+
+The exact external endpoint should be treated as environment-specific because AWS resources can change.
+
+---
+
+# 31. AWS LOAD BALANCER TROUBLESHOOTING
+
+A Load Balancer initially did not provision correctly.
+
+The investigation involved Kubernetes/AWS subnet and security-group tagging.
+
+An important issue was found with the node security group:
+
+```text
+sg-0ca75a91cd3d3c640
+```
+
+It had:
+
+```text
+kubernetes.io/cluster/devops-java-lab=owned
+```
+
+The tag was removed during troubleshooting, after which the Load Balancer provisioned successfully.
+
+## Important lesson
+
+Kubernetes running on AWS is not isolated from AWS networking.
+
+Kubernetes objects such as:
+
+```text
+Service type LoadBalancer
+```
+
+can cause AWS resources to be created.
+
+Therefore, debugging EKS often requires checking both:
+
+```text
+kubectl
+```
+
+and:
+
+```text
+AWS infrastructure
+```
+
+---
+
+# 32. STAGE 16 — KUSTOMIZE
+
+## Why Kustomize
+
+Kustomize allows Kubernetes manifests to be reused and customized for different environments.
+
+The project structure:
+
+```text
+k8s/
+├── base/
+│   ├── deployment.yaml
+│   └── kustomization.yaml
+│
+└── overlays/
+    └── dev/
+        ├── kustomization.yaml
+        └── service.yaml
+```
+
+## Base
+
+The base contains common Kubernetes configuration.
+
+```text
+Deployment
+```
+
+## Overlay
+
+The dev overlay adds environment-specific configuration.
+
+```text
+Service
+Image tag
+```
+
+The dev overlay changed the application image to:
+
+```text
+neha1200/devops-java-lab:14
+```
+
+---
+
+# 33. KUSTOMIZE IMPORTANT DETAIL
+
+The Deployment selector was:
+
+```yaml
+app: devops-java-lab
+```
+
+This selector is effectively part of the identity of the Deployment and cannot simply be changed after creation.
+
+Therefore, the Helm selector was later deliberately matched to:
+
+```yaml
+app: devops-java-lab
+```
+
+This avoided selector conflicts while adopting the existing Kubernetes resources into Helm.
+
+---
+
+# 34. STAGE 17 — HELM
+
+## Why Helm
+
+Raw Kubernetes YAML works, but large applications can have many manifests and repeated values.
+
+Helm packages Kubernetes resources into a reusable chart.
+
+Concept:
+
+```text
+Kubernetes YAML
+       |
+       v
+     Helm
+       |
+       v
+Reusable Chart
+```
+
+Helm provides:
+
+- Templates
+- Values
+- Releases
+- Versioning
+- Upgrade
+- Rollback
+
+---
+
+# 35. HELM CHART STRUCTURE
+
+```text
+helm/
+└── devops-java-lab/
+    ├── Chart.yaml
+    ├── values.yaml
+    └── templates/
+        ├── deployment.yaml
+        ├── service.yaml
+        ├── serviceaccount.yaml
+        └── _helpers.tpl
+```
+
+---
+
+# 36. HELM CHART.YAML
+
+The final chart metadata:
+
+```yaml
+apiVersion: v2
+
+name: devops-java-lab
+
+description: Minimal Java service for DevOps practice
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.0.0"
+```
+
+---
+
+# 37. HELM VALUES
+
+Important values:
+
+```yaml
+replicaCount: 2
+
+image:
+  repository: neha1200/devops-java-lab
+  pullPolicy: Always
+  tag: "14"
+```
+
+Service:
+
+```yaml
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8081
+```
+
+Resources:
+
+```yaml
+requests:
+  cpu: 100m
+  memory: 256Mi
+
+limits:
+  cpu: 500m
+  memory: 512Mi
+```
+
+Probes:
+
+```text
+Liveness:
+  /actuator/health/liveness
+
+Readiness:
+  /actuator/health/readiness
+```
+
+Autoscaling was defined in the values file but disabled:
+
+```yaml
+autoscaling:
+  enabled: false
+```
+
+---
+
+# 38. HELM DEPLOYMENT TEMPLATE
+
+The Deployment template uses values for:
+
+- Replica count
+- Image repository
+- Image tag
+- Image pull policy
+- Container port
+- Liveness probe
+- Readiness probe
+- Resources
+
+The image is generated from:
+
+```text
+repository + tag
+```
+
+Current result:
+
+```text
+neha1200/devops-java-lab:14
+```
+
+---
+
+# 39. HELM SERVICE TEMPLATE
+
+The Helm Service uses:
+
+```text
+type: LoadBalancer
+port: 80
+targetPort: 8081
+```
+
+Therefore the same application networking model is preserved:
+
+```text
+AWS Load Balancer
+       |
+       v
+Service :80
+       |
+       v
+Pod :8081
+```
+
+---
+
+# 40. HELM HELPERS
+
+The `_helpers.tpl` file defines reusable template logic.
+
+Important selector:
+
+```yaml
+app: devops-java-lab
+```
+
+This was intentionally kept compatible with the existing Kubernetes Deployment.
+
+---
+
+# 41. HELM VALIDATION
+
+The chart was validated with:
+
+```powershell
+helm lint .\helm\devops-java-lab
+```
+
+The chart rendered successfully using:
+
+```powershell
+helm template devops-java-lab .\helm\devops-java-lab
+```
+
+This confirmed that Helm could render:
+
+- ServiceAccount
+- Service
+- Deployment
+
+with the expected configuration.
+
+---
+
+# 42. HELM INSTALLATION TROUBLESHOOTING
+
+Helm version installed:
+
+```text
+v4.3.0
+```
+
+Helm was installed using Windows package management.
+
+A temporary PATH adjustment used during the session was:
+
+```powershell
+$env:Path += ";$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Helm.Helm_Microsoft.Winget.Source_8wekyb3d8bbwe\windows-amd64"
+```
+
+## Problem 1 — Selector conflict
+
+The first Helm installation encountered:
+
+```text
+conflict with "kubectl-client-side-apply"
+```
+
+The conflict involved:
+
+```text
+.spec.selector
+```
+
+The existing Deployment selector was:
+
+```json
+{"app":"devops-java-lab"}
+```
+
+The Helm selector was changed to match the existing selector.
+
+## Problem 2 — Release name already in use
+
+A later installation reported:
+
+```text
+cannot reuse a name that is still in use
+```
+
+The failed Helm release was investigated.
+
+Release secret:
+
+```text
+sh.helm.release.v1.devops-java-lab.v1
+```
+
+That secret was deleted during cleanup of the failed release metadata.
+
+The user later confirmed that **Helm installation was completed**.
+
+## Important lesson
+
+When adopting existing Kubernetes resources into Helm, there are two different concerns:
+
+```text
+Kubernetes resource ownership
+        +
+Helm release metadata
+```
+
+Both must be consistent.
+
+---
+
+# 43. STAGE 18 — GITHUB ACTIONS
+
+GitHub Actions was added after the Jenkins-based CI/CD work.
+
+## Why GitHub Actions
+
+GitHub Actions provides CI/CD directly inside GitHub.
+
+This means the project can use:
+
+```text
+GitHub
+   |
+   v
+GitHub Actions
+   |
+   +--> Build
+   +--> Test
+   +--> Docker Build
+   +--> Docker Push
+   +--> Deployment
+```
+
+The user completed the project through CI/CD using GitHub Actions.
+
+## Concept
+
+A GitHub Actions workflow generally contains:
+
+```text
+Trigger
+   |
+   v
+Job
+   |
+   +--> Checkout
+   |
+   +--> Set up Java
+   |
+   +--> Maven build/test
+   |
+   +--> Docker login
+   |
+   +--> Docker build
+   |
+   +--> Docker push
+```
+
+Secrets are used for credentials rather than hardcoding sensitive information.
+
+---
+
+# 44. JENKINS VS GITHUB ACTIONS
+
+Both were used to understand CI/CD from different perspectives.
+
+## Jenkins
+
+```text
+GitHub
+  |
+  v
+Jenkins
+  |
+  v
+Pipeline
+```
+
+Jenkins is a standalone automation server.
+
+## GitHub Actions
+
+```text
+GitHub
+  |
+  v
+GitHub Actions
+  |
+  v
+Workflow
+```
+
+GitHub Actions is integrated directly with GitHub.
+
+## Why learn both?
+
+Learning both demonstrates understanding of the CI/CD concepts rather than dependency on a single tool.
+
+The underlying process remains:
+
+```text
+Code
+ ↓
+Build
+ ↓
+Test
+ ↓
+Quality
+ ↓
+Container
+ ↓
+Registry
+ ↓
+Deployment
+```
+
+---
+
+# 45. COMPLETE CI/CD FLOW
+
+The project's CI/CD concept can be summarized as:
+
+```text
+Developer pushes code
+        |
+        v
+      GitHub
+        |
+        +-------------------+
+        |                   |
+        v                   v
+     Jenkins          GitHub Actions
+        |                   |
+        +---------+---------+
+                  |
+                  v
+             Maven Build
+                  |
+                  v
+                Tests
+                  |
+                  v
+             SonarQube
+                  |
+                  v
+             Quality Gate
+                  |
+                  v
+            Docker Build
+                  |
+                  v
+             Docker Image
+                  |
+                  v
+              Docker Hub
+                  |
+                  v
+          Kubernetes / EKS
+                  |
+                  v
+             Deployment
+                  |
+                  v
+                Pods
+                  |
+                  v
+               Service
+                  |
+                  v
+          AWS Load Balancer
+```
+
+---
+
+# 46. PROJECT ARCHITECTURE
+
+Final conceptual architecture:
+
+```text
+                         +----------------+
+                         |    Developer   |
+                         +-------+--------+
+                                 |
+                                 v
+                         +----------------+
+                         |     GitHub     |
+                         +---+--------+---+
+                             |        |
+                  +----------+        +----------+
+                  |                           |
+                  v                           v
+          +---------------+           +---------------+
+          |    Jenkins    |           | GitHub Actions|
+          +-------+-------+           +-------+-------+
+                  |                           |
+                  +-------------+-------------+
+                                |
+                                v
+                       +----------------+
+                       | Maven / Tests  |
+                       +-------+--------+
+                               |
+                               v
+                       +----------------+
+                       |   SonarQube    |
+                       +-------+--------+
+                               |
+                               v
+                       +----------------+
+                       |  Quality Gate  |
+                       +-------+--------+
+                               |
+                               v
+                       +----------------+
+                       | Docker Build   |
+                       +-------+--------+
+                               |
+                               v
+                       +----------------+
+                       |   Docker Hub   |
+                       +-------+--------+
+                               |
+                               v
+                    +-----------------------+
+                    |       Terraform       |
+                    +-----------+-----------+
+                                |
+                                v
+                    +-----------------------+
+                    |       AWS VPC          |
+                    +-----------+-----------+
+                                |
+                                v
+                    +-----------------------+
+                    |       Amazon EKS       |
+                    +-----------+-----------+
+                                |
+                                v
+                    +-----------------------+
+                    | Kubernetes Deployment  |
+                    +-----------+-----------+
+                                |
+                    +-----------+-----------+
+                    |                       |
+                    v                       v
+                 Pod 1                   Pod 2
+                    |                       |
+                    +-----------+-----------+
+                                |
+                                v
+                         +-------------+
+                         |   Service   |
+                         | LoadBalancer|
+                         +------+------+ 
+                                |
+                                v
+                         +-------------+
+                         | AWS LB / DNS|
+                         +------+------+ 
+                                |
+                                v
+                         Spring Boot App
+```
+
+---
+
+# 47. LOCAL DEVELOPMENT ARCHITECTURE
+
+The local environment included:
+
+```text
+Spring Boot Application
+        |
+        +---- Prometheus :9090
+        |
+        +---- Grafana :3000
+        |
+        +---- SonarQube :9000
+        |
+        +---- Jenkins (when using Docker setup)
+```
+
+Important host/container port concept:
+
+```text
+HOST PORT : CONTAINER PORT
+```
+
+Example:
+
+```text
+8081:8081
+```
+
+means:
+
+```text
+Windows host port 8081
+        |
+        v
+Container port 8081
+```
+
+---
+
+# 48. IMPORTANT PORTS
+
+| Component | Port |
+|---|---:|
+| Spring Boot application | 8081 |
+| Kubernetes Service | 80 |
+| Prometheus | 9090 |
+| Grafana | 3000 |
+| SonarQube | 9000 |
+| Jenkins Windows | 8080 |
+| Jenkins Docker container | 8080 internally |
+
+Remember:
+
+> A host port and a container port are not necessarily the same.
+
+Example:
+
+```text
+8081:8081
+```
+
+or:
+
+```text
+8081:8080
+```
+
+have completely different meanings.
+
+---
+
+# 49. IMPORTANT KUBERNETES COMMANDS
+
+Check nodes:
+
+```powershell
+kubectl get nodes
+```
+
+Check Pods:
+
+```powershell
+kubectl get pods
+```
+
+Check Deployment:
+
+```powershell
+kubectl get deployment
+```
+
+Check Service:
+
+```powershell
+kubectl get service
+```
+
+Check all resources:
+
+```powershell
+kubectl get all
+```
+
+Describe a resource:
+
+```powershell
+kubectl describe deployment devops-java-lab
+```
+
+Check logs:
+
+```powershell
+kubectl logs <pod-name>
+```
+
+Check rollout:
+
+```powershell
+kubectl rollout status deployment/devops-java-lab
+```
+
+---
+
+# 50. IMPORTANT DOCKER COMMANDS
+
+Build image:
+
+```powershell
+docker build -t neha1200/devops-java-lab:14 .
+```
+
+List images:
+
+```powershell
+docker images
+```
+
+Run container:
+
+```powershell
+docker run ...
+```
+
+List running containers:
+
+```powershell
+docker ps
+```
+
+List all containers:
+
+```powershell
+docker ps -a
+```
+
+Stop container:
+
+```powershell
+docker stop <container>
+```
+
+Remove container:
+
+```powershell
+docker rm <container>
+```
+
+Push image:
+
+```powershell
+docker push neha1200/devops-java-lab:14
+```
+
+---
+
+# 51. IMPORTANT TERRAFORM COMMANDS
+
+Initialize:
+
+```powershell
+terraform init
+```
+
+Validate:
+
+```powershell
+terraform validate
+```
+
+Plan:
+
+```powershell
+terraform plan
+```
+
+Apply:
+
+```powershell
+terraform apply
+```
+
+Destroy:
+
+```powershell
+terraform destroy
+```
+
+Important:
+
+> Never run `terraform destroy` casually. It can remove cloud infrastructure.
+
+---
+
+# 52. IMPORTANT HELM COMMANDS
+
+Check Helm version:
+
+```powershell
+helm version
+```
+
+Lint chart:
+
+```powershell
+helm lint .\helm\devops-java-lab
+```
+
+Render chart without installing:
+
+```powershell
+helm template devops-java-lab .\helm\devops-java-lab
+```
+
+Check release:
+
+```powershell
+helm status devops-java-lab
+```
+
+Helm 4.3.0 was used in this project.
+
+Some older Helm command variations such as:
+
+```text
+helm list -a
+helm list --all
+```
+
+were not supported in the installed Helm 4.3.0 CLI.
+
+---
+
+# 53. IMPORTANT GIT COMMANDS
+
+Check status:
+
+```powershell
+git status
+```
+
+Add changes:
+
+```powershell
+git add .
+```
+
+Commit:
+
+```powershell
+git commit -m "message"
+```
+
+Push:
+
+```powershell
+git push
+```
+
+View history:
+
+```powershell
+git log --oneline
+```
+
+---
+
+# 54. IMPORTANT FILES
+
+## Application
+
+```text
+pom.xml
+src/
+```
+
+## Container
+
+```text
+Dockerfile
+.dockerignore
+```
+
+## Jenkins
+
+```text
+Jenkinsfile
+```
+
+## Compose
+
+```text
+docker-compose.yml
+docker-compose-devops.yml
+```
+
+## Kubernetes
+
+```text
+k8s/base/deployment.yaml
+k8s/base/kustomization.yaml
+k8s/overlays/dev/kustomization.yaml
+k8s/overlays/dev/service.yaml
+```
+
+## Helm
+
+```text
+helm/devops-java-lab/Chart.yaml
+helm/devops-java-lab/values.yaml
+helm/devops-java-lab/templates/deployment.yaml
+helm/devops-java-lab/templates/service.yaml
+helm/devops-java-lab/templates/serviceaccount.yaml
+helm/devops-java-lab/templates/_helpers.tpl
+```
+
+## Terraform
+
+```text
+terraform/environments/dev/main.tf
+terraform/environments/dev/variables.tf
+terraform/environments/dev/outputs.tf
+terraform/environments/dev/versions.tf
+terraform/environments/dev/terraform.tfvars.example
+```
+
+---
+
+# 55. IMPORTANT PROJECT CONFIGURATION
+
+## Current application image
+
+```text
+neha1200/devops-java-lab:14
+```
+
+## Current application port
+
+```text
+8081
+```
+
+## Kubernetes service
+
+```text
+80 -> 8081
+```
+
+## Kubernetes replicas
+
+```text
+2
+```
+
+## Kubernetes resource requests
+
+```text
+CPU: 100m
+Memory: 256Mi
+```
+
+## Kubernetes resource limits
+
+```text
+CPU: 500m
+Memory: 512Mi
+```
+
+---
+
+# 56. GITIGNORE IMPORTANT PARTS
+
+The project `.gitignore` contains important exclusions such as:
+
+```gitignore
+target/
+.idea/
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+.DS_Store
+Thumbs.db
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+plan.txt
+```
+
+Terraform state files are intentionally excluded because they can contain sensitive infrastructure information and should not normally be committed directly to source control.
+
+---
+
+# 57. TROUBLESHOOTING MEMORY
+
+This section is intentionally kept because these were real problems encountered during the project.
+
+## Docker permission denied
+
+Error pattern:
+
+```text
+Permission denied while trying to connect to Docker daemon socket
+```
+
+Lesson:
+
+The current user needs appropriate access to the Docker daemon.
+
+---
+
+## Terraform state access Forbidden
+
+Error pattern:
+
+```text
+Unable to access terraform.tfstate in S3 bucket: Forbidden
+```
+
+Possible areas investigated:
+
+- AWS permissions
+- S3 bucket access
+- AWS identity
+- Terraform backend configuration
+
+---
+
+## AWS InvalidClientTokenId
+
+Error:
+
+```text
+InvalidClientTokenId
+```
+
+Lesson:
+
+AWS authentication/credentials can prevent Terraform from communicating with AWS.
+
+---
+
+## AWS region mismatch
+
+An AWS request was made against the wrong region.
+
+Lesson:
+
+Always verify:
+
+```text
+AWS region
+Terraform region
+Resource region
+AWS CLI configuration
+```
+
+---
+
+## IAM EntityAlreadyExists
+
+Error:
+
+```text
+EntityAlreadyExists
+```
+
+Lesson:
+
+The requested IAM resource name already existed.
+
+Infrastructure code needs predictable naming and awareness of existing resources.
+
+---
+
+## Terraform lock error
+
+Error:
+
+```text
+ConditionalCheckFailedException
+```
+
+Lesson:
+
+Terraform state locking prevents multiple Terraform operations from modifying state simultaneously.
+
+---
+
+## Kubernetes Kind / Docker executable problem
+
+A Kind cluster attempt encountered:
+
+```text
+docker executable not found in PATH
+```
+
+Lesson:
+
+Kind depends on Docker, so the Docker CLI must be available to the environment where Kind is executed.
+
+---
+
+## Jenkins container exiting
+
+Error state:
+
+```text
+Exited (5)
+```
+
+Lesson:
+
+Always check:
+
+```text
+docker ps -a
+docker logs <container>
+docker inspect <container>
+```
+
+and verify whether another Jenkins installation/service is already running.
+
+---
+
+## Kubernetes LoadBalancer problem
+
+Lesson:
+
+When an AWS Load Balancer fails to provision, check:
+
+```text
+kubectl get service
+kubectl describe service
+AWS subnets
+AWS security groups
+Kubernetes tags
+```
+
+---
+
+## Helm selector conflict
+
+Problem:
+
+Existing Deployment:
+
+```text
+app: devops-java-lab
+```
+
+Helm attempted a different selector.
+
+Solution:
+
+Make Helm's selector compatible with the existing Deployment selector.
+
+Important Kubernetes rule:
+
+> Deployment selectors are effectively immutable after creation.
+
+---
+
+## Helm release name conflict
+
+Problem:
+
+```text
+cannot reuse a name that is still in use
+```
+
+Investigation showed a failed Helm release record.
+
+Release secret:
+
+```text
+sh.helm.release.v1.devops-java-lab.v1
+```
+
+The failed release metadata was removed.
+
+Lesson:
+
+Helm tracks releases separately from the Kubernetes resources themselves.
+
+---
+
+# 58. HOW TO DEBUG THIS PROJECT
+
+When something fails, do not immediately change random configuration.
+
+Use this order.
+
+## Step 1 — Identify the layer
+
+Ask:
+
+```text
+Is the problem in:
+
+Application?
+Maven?
+Git?
+Docker?
+Jenkins?
+SonarQube?
+Terraform?
+AWS?
+Kubernetes?
+Helm?
+GitHub Actions?
+```
+
+## Step 2 — Check status
+
+Examples:
+
+```powershell
+docker ps -a
+```
+
+```powershell
+kubectl get pods
+```
+
+```powershell
+kubectl get service
+```
+
+```powershell
+kubectl get nodes
+```
+
+```powershell
+terraform plan
+```
+
+## Step 3 — Read the actual error
+
+Do not assume the root cause.
+
+Use:
+
+```powershell
+kubectl describe ...
+```
+
+or:
+
+```powershell
+docker logs ...
+```
+
+or the relevant CI/CD logs.
+
+## Step 4 — Check the dependency
+
+Examples:
+
+```text
+Kubernetes Pod
+   depends on
+Docker image
+```
+
+```text
+EKS LoadBalancer
+   depends on
+AWS networking
+```
+
+```text
+Helm
+   depends on
+valid Kubernetes manifests
+```
+
+```text
+Jenkins
+   depends on
+Docker / Maven / credentials / Git
+```
+
+---
+
+# 59. WHAT EACH TOOL SOLVES
+
+| Tool | Problem it solves |
+|---|---|
+| Java | Application logic |
+| Spring Boot | Application framework |
+| Maven | Build and dependency management |
+| Git | Version control |
+| GitHub | Remote repository/collaboration |
+| Docker | Consistent application packaging |
+| Docker Compose | Local multi-container environment |
+| Prometheus | Metrics collection |
+| Grafana | Metrics visualization |
+| Jenkins | CI/CD automation |
+| SonarQube | Code quality analysis |
+| Quality Gate | Quality decision |
+| Docker Hub | Image storage |
+| Terraform | Infrastructure as Code |
+| AWS VPC | Cloud networking |
+| EKS | Managed Kubernetes |
+| Kubernetes | Container orchestration |
+| Service | Stable application networking |
+| AWS Load Balancer | External access |
+| Kustomize | Kubernetes configuration customization |
+| Helm | Kubernetes packaging/release management |
+| GitHub Actions | GitHub-native CI/CD |
+
+---
+
+# 60. WHY WE DID NOT JUST USE ONE TOOL
+
+The project is designed to demonstrate the complete DevOps lifecycle.
+
+For example:
+
+```text
+Docker
+```
+
+solves packaging.
+
+But Docker alone does not provide the complete production orchestration model.
+
+Therefore:
+
+```text
+Docker
+   +
+Kubernetes
+```
+
+gives container packaging + orchestration.
+
+Similarly:
+
+```text
+Terraform
+```
+
+creates infrastructure.
+
+```text
+Kubernetes
+```
+
+runs workloads.
+
+```text
+Helm
+```
+
+packages Kubernetes configuration.
+
+```text
+Prometheus + Grafana
+```
+
+provides observability.
+
+```text
+Jenkins / GitHub Actions
+```
+
+provides automation.
+
+Each tool has a specific responsibility.
+
+---
+
+# 61. PROJECT LEARNING FLOW
+
+The project should be understood as layers.
+
+```text
+LAYER 1
+Application
+Java + Spring Boot
+        |
+        v
+LAYER 2
+Build
+Maven
+        |
+        v
+LAYER 3
+Version Control
+Git + GitHub
+        |
+        v
+LAYER 4
+Containerization
+Docker
+        |
+        v
+LAYER 5
+Local Platform
+Docker Compose
+        |
+        v
+LAYER 6
+CI/CD
+Jenkins + GitHub Actions
+        |
+        v
+LAYER 7
+Code Quality
+SonarQube + Quality Gate
+        |
+        v
+LAYER 8
+Registry
+Docker Hub
+        |
+        v
+LAYER 9
+Infrastructure
+Terraform + AWS
+        |
+        v
+LAYER 10
+Orchestration
+Kubernetes / EKS
+        |
+        v
+LAYER 11
+Packaging
+Kustomize + Helm
+        |
+        v
+LAYER 12
+Observability
+Prometheus + Grafana
+```
+
+---
+
+# 62. WHAT HAS BEEN COMPLETED
+
+```text
+[✓] Java 21
+[✓] Spring Boot
+[✓] Maven
+[✓] Git
+[✓] GitHub
+[✓] Docker
+[✓] Docker Compose
+[✓] Prometheus
+[✓] Grafana
+[✓] Jenkins
+[✓] SonarQube
+[✓] Quality Gate
+[✓] Docker Hub
+[✓] Terraform
+[✓] AWS VPC
+[✓] Amazon EKS
+[✓] Kubernetes Deployment
+[✓] Kubernetes Pods
+[✓] Kubernetes Service
+[✓] AWS Load Balancer
+[✓] Kustomize
+[✓] Helm Chart
+[✓] Helm installation on EKS
+[✓] GitHub Actions CI/CD
+```
+
+---
+
+# 63. NEXT PLANNED STAGES
+
+These are the logical next stages, not yet marked as completed in this document.
+
+```text
+[ ] Ansible
+[ ] Argo CD
+[ ] GitOps
+[ ] Advanced Prometheus/Grafana dashboards
+[ ] Alertmanager
+[ ] Loki / Promtail
+[ ] OpenTelemetry
+[ ] Trivy / container security
+[ ] SAST / SCA improvements
+[ ] External Secrets
+[ ] Ingress
+[ ] TLS
+[ ] HPA
+[ ] Blue/Green deployment
+[ ] Canary deployment
+[ ] Remote Terraform state
+[ ] Advanced SRE practices
+```
+
+---
+
+# 64. IF I GET STUCK — QUICK RECOVERY GUIDE
+
+## Application does not start
+
+Check:
+
+```text
+Java version
+Maven build
+Application logs
+Port 8081
+```
+
+---
+
+## Docker container does not start
+
+Check:
+
+```powershell
+docker ps -a
+docker logs <container>
+```
+
+Then verify:
+
+```text
+Dockerfile
+image
+port
+environment variables
+```
+
+---
+
+## Jenkins pipeline fails
+
+Check the failed stage first:
+
+```text
+Checkout?
+Maven?
+SonarQube?
+Quality Gate?
+Docker?
+Push?
+Deploy?
+```
+
+Do not debug unrelated stages.
+
+---
+
+## Kubernetes Pod is not running
+
+Run:
+
+```powershell
+kubectl get pods
+```
+
+Then:
+
+```powershell
+kubectl describe pod <pod-name>
+```
+
+Then:
+
+```powershell
+kubectl logs <pod-name>
+```
+
+---
+
+## Application Pod is running but cannot be accessed
+
+Check:
+
+```powershell
+kubectl get service
+```
+
+Then:
+
+```powershell
+kubectl describe service devops-java-lab
+```
+
+Verify:
+
+```text
+Service port = 80
+Target port = 8081
+Pod port = 8081
+```
+
+---
+
+## LoadBalancer is pending
+
+Check:
+
+```text
+AWS region
+subnets
+subnet tags
+security groups
+service configuration
+```
+
+---
+
+## Helm fails
+
+Check:
+
+```powershell
+helm lint .\helm\devops-java-lab
+```
+
+Then:
+
+```powershell
+helm template devops-java-lab .\helm\devops-java-lab
+```
+
+Then:
+
+```powershell
+helm status devops-java-lab
+```
+
+---
+
+# 65. THE MOST IMPORTANT CONCEPTUAL FLOW
+
+If you remember only one thing from this project, remember this:
+
+```text
+CODE
+ ↓
+GitHub
+ ↓
+CI/CD
+ ↓
+TEST
+ ↓
+QUALITY CHECK
+ ↓
+DOCKER IMAGE
+ ↓
+DOCKER HUB
+ ↓
+TERRAFORM
+ ↓
+AWS
+ ↓
+EKS
+ ↓
+KUBERNETES
+ ↓
+POD
+ ↓
+SERVICE
+ ↓
+LOAD BALANCER
+ ↓
+APPLICATION
+```
+
+And around the application:
+
+```text
+Prometheus
+    ↓
+Metrics
+    ↓
+Grafana
+    ↓
+Visibility
+```
+
+For Kubernetes configuration:
+
+```text
+Kustomize
+    +
+Helm
+```
+
+For automation:
+
+```text
+Jenkins
+    +
+GitHub Actions
+```
+
+---
+
+# 66. ONE-SENTENCE EXPLANATION FOR INTERVIEWS
+
+> "I built a Java 21 Spring Boot application and implemented an end-to-end DevOps workflow using Maven, Git, GitHub, Docker, Jenkins, GitHub Actions, SonarQube, Docker Hub, Terraform, AWS VPC, Amazon EKS, Kubernetes, Kustomize, Helm, Prometheus and Grafana, taking the application from source code through CI/CD and containerization to a Kubernetes deployment exposed through an AWS Load Balancer."
+
+---
+
+# 67. PROJECT PHILOSOPHY
+
+The most important thing about this project is not memorizing commands.
+
+The learning sequence is:
+
+```text
+Understand the problem
+        ↓
+Understand why the tool exists
+        ↓
+Understand where the tool fits
+        ↓
+Configure the tool
+        ↓
+Run it
+        ↓
+Verify the result
+        ↓
+Troubleshoot failures
+        ↓
+Connect it to the next stage
+```
+
+That is the approach to continue using for every future stage.
+
+---
+
+# 68. FINAL PROJECT MAP
+
+```text
+                           DEVOPS JAVA LAB
+                                  |
+             +--------------------+--------------------+
+             |                    |                    |
+             v                    v                    v
+        APPLICATION            CI/CD             INFRASTRUCTURE
+             |                    |                    |
+      Java + Spring Boot    Jenkins              Terraform
+             |              GitHub Actions            |
+           Maven                  |                    v
+             |              SonarQube              AWS VPC
+             |                    |                    |
+             |              Quality Gate              v
+             |                    |                  EKS
+             |                    |                    |
+             +-----------> Docker Image <-------------+
+                              |
+                              v
+                         Docker Hub
+                              |
+                              v
+                         Kubernetes
+                              |
+                  +-----------+-----------+
+                  |                       |
+                  v                       v
+              Deployment              Service
+                  |                       |
+                  v                       v
+                Pods              AWS Load Balancer
+                  |
+                  v
+            Spring Boot App
+                  |
+          +-------+-------+
+          |               |
+          v               v
+      Prometheus        Actuator
+          |
+          v
+       Grafana
+
+Kubernetes configuration:
+Kustomize + Helm
+
+Future:
+Ansible + Argo CD + GitOps + Advanced Observability + Security + SRE
+```
+
+---
+
+# 69. DOCUMENT MAINTENANCE RULE
+
+Whenever a new technology or major project stage is completed, update this document with:
+
+1. **What was created**
+2. **Why it was needed**
+3. **Where it fits in the architecture**
+4. **Important files**
+5. **Important commands**
+6. **Configuration**
+7. **Verification**
+8. **Problems encountered**
+9. **How the problems were solved**
+10. **What comes next**
+
+This keeps the document useful as a long-term project recovery guide rather than turning it into a simple checklist.
+
+---
+
+# 70. CURRENT STOPPING POINT
+
+At the current documented stopping point:
+
+```text
+Java/Spring Boot       ✓
+Maven                  ✓
+Git/GitHub             ✓
+Docker                 ✓
+Docker Compose         ✓
+Prometheus/Grafana     ✓
+Jenkins                ✓
+SonarQube              ✓
+Quality Gate           ✓
+Docker Hub             ✓
+Terraform              ✓
+AWS VPC                ✓
+EKS                    ✓
+Kubernetes             ✓
+AWS Load Balancer      ✓
+Kustomize              ✓
+Helm                   ✓
+GitHub Actions         ✓
+```
+
+The next major learning area is:
+
+```text
+ANsible
+   ↓
+Argo CD
+   ↓
+GitOps
+   ↓
+Advanced Observability
+   ↓
+Security
+   ↓
+Advanced Deployment Strategies
+   ↓
+SRE
+```
+
+---
+
+# END OF PROJECT TRACKER
+
+**Project:** DevOps Java Lab  
+**Application:** Java 21 + Spring Boot  
+**Cloud:** AWS  
+**Kubernetes:** Amazon EKS  
+**Current image:** `neha1200/devops-java-lab:14`  
+**Current application port:** `8081`  
+**Region:** `ap-south-1`
+
+> **Use this document as the project's single source of learning context.**
+> When returning to the project after a break, start from Sections 1–4, then follow the numbered stages.
+> When something fails, use Sections 57–64.

@@ -1,18 +1,40 @@
 name: CI
+
 on:
-  push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-test-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: maven
+
       - name: Build and test
         run: mvn -B clean verify
+
       - name: Build Docker image
         run: docker build -t devops-java-lab:${{ github.sha }} .
+
+      - uses: azure/setup-helm@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Helm lint
+        run: helm lint helm/devops-java-lab
+
+      - name: Helm template
+        run: helm template devops-java-lab helm/devops-java-lab > /dev/null

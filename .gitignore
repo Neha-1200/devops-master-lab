@@ -28,3 +28,4 @@ plan.txt
 
 # Keep Terraform provider lock file
 !.terraform.lock.hcl
+dist/
